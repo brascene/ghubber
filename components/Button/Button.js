@@ -9,7 +9,7 @@ type Props = {
     children: Object,
     onPress: () => any,
     style?: ComponentStyles,
-    textStyle: Object
+    textStyle: ComponentStyles
 };
 
 export default class Button extends PureComponent<Props> {
@@ -18,7 +18,7 @@ export default class Button extends PureComponent<Props> {
 
         return (
             <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
-                <UIText style={textStyle !== {} ? textStyle : styles.text}>
+                <UIText style={[styles.text, textStyle]}>
                     {children}
                 </UIText>
             </TouchableOpacity>

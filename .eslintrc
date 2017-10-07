@@ -37,7 +37,6 @@
         "Dispatch": true,
         "Promise": true,
         "ThunkAction": true,
-        "ActionType": true,
-        "require": true
+        "ActionType": true
     }
 }
