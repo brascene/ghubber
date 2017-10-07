@@ -8,16 +8,17 @@ import { UIText } from 'components';
 type Props = {
     children: Object,
     onPress: () => any,
-    style?: ComponentStyles
+    style?: ComponentStyles,
+    textStyle: Object
 };
 
 export default class Button extends PureComponent<Props> {
     render() {
-        const { style, children, onPress } = this.props;
+        const { style, children, textStyle, onPress } = this.props;
 
         return (
             <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
-                <UIText style={styles.text}>
+                <UIText style={textStyle !== {} ? textStyle : styles.text}>
                     {children}
                 </UIText>
             </TouchableOpacity>
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     text: {
-        color: '#fff',
+        color: 'black',
         fontSize: 18,
         fontWeight: '600',
         textAlign: 'center',

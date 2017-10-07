@@ -3,8 +3,9 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { View, StyleSheet, ScrollView, FlatList } from 'react-native';
-import { ErrorView, Spinner, Badge, UIText, ReactionGroup, Blank, Comment, CommitRow, RowSeparator } from 'components';
+import { View, StyleSheet, ScrollView, FlatList, Text } from 'react-native';
+import Modal from 'react-native-modal';
+import { ErrorView, Spinner, Badge, UIText, ReactionGroup, Blank, Comment, CommitRow, RowSeparator, Button, ImageButton } from 'components';
 import { IndicatorViewPager, PagerTitleIndicator } from 'rn-viewpager';
 import { fetchPullRequest, showRepositoryCommit } from 'actions';
 import { normalizeFont } from 'utils/helpers';
@@ -25,6 +26,10 @@ type Props = {
     showRepositoryCommit: typeof showRepositoryCommit,
 }
 
+type ModalState = {
+    modalVisible: boolean,
+}
+
 const TITLE_COMMITS_INDEX = 1;
 
 function getStateColor(state: string): string {
@@ -40,7 +45,11 @@ function getStateColor(state: string): string {
     }
 }
 
-class RepositoryPullRequestScreen extends PureComponent<Props> {
+class RepositoryPullRequestScreen extends PureComponent<Props, ModalState> {
+    state: ModalState = {
+        modalVisible: false
+    };
+
     componentWillMount() {
         this.fetchPullRequest();
     }
@@ -88,6 +97,10 @@ class RepositoryPullRequestScreen extends PureComponent<Props> {
         ];
     }
 
+    setModalVisible(visible) {
+      this.setState({ modalVisible: visible });
+    }
+
     renderOverView(pullRequest: Object): React.Element<any> {
         return (
             <ScrollView style={styles.overview}>
@@ -101,6 +114,25 @@ class RepositoryPullRequestScreen extends PureComponent<Props> {
                     </View>
                 </View>
                 <UIText style={styles.body}>{pullRequest.body}</UIText>
+                <ImageButton
+                  style={styles.button}
+                  onPress={() => this.setModalVisible(true)}
+                  styleText={styles.buttonText}>
+                  Close PR
+                </ImageButton>
+                <Modal
+                  style={styles.modalContainer}
+                  isVisible={this.state.modalVisible}>
+                  <View style={styles.modalContent}>
+                    <Text style={styles.modalTitle}>Merge this pull request?</Text>
+                    <Button
+                      style={styles.deletePr}
+                      textStyle={styles.deletePrText}
+                      onPress={() => this.setModalVisible(false)}>
+                      Merge
+                    </Button>
+                  </View>
+                </Modal>
                 <ReactionGroup reactions={pullRequest.reactionGroups} />
                 <FlatList
                     style={styles.commentsList}
@@ -215,6 +247,42 @@ const styles = StyleSheet.create({
     page: {
         flex: 1,
         paddingHorizontal: 10
+    },
+    button: {
+        width: 80, height: 30,
+        backgroundColor: '#edf1f5',
+    },
+    deletePr: {
+      width: 70, marginTop: 10,
+      backgroundColor: '#52c245',
+    },
+    deletePrText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 'bold',
+      textAlign: 'center',
+    },
+    buttonText: {
+        color: 'black',
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        backgroundColor: 'transparent'
+    },
+    modalTitle: {
+      color: 'black',
+      fontSize: 14, marginTop: 8,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    modalContainer: {
+      backgroundColor: 'transparent',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      width: 200, height: 80, borderRadius: 10,
+      backgroundColor: '#fff', flexDirection: 'column', alignItems: 'center'
     },
     wrapper: {
         flex: 1
