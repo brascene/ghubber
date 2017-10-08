@@ -3,11 +3,10 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { View, StyleSheet, ScrollView, FlatList, Text } from 'react-native';
-import Modal from 'react-native-modal';
-import { ErrorView, Spinner, Badge, UIText, ReactionGroup, Blank, Comment, CommitRow, RowSeparator, Button, ImageButton } from 'components';
+import { View, StyleSheet, ScrollView, FlatList, Text, TouchableOpacity } from 'react-native';
+import { ErrorView, Spinner, Badge, UIText, ReactionGroup, Blank, Comment, CommitRow, RowSeparator, ImageButton, ModalPicker, Button } from 'components';
 import { IndicatorViewPager, PagerTitleIndicator } from 'rn-viewpager';
-import { fetchPullRequest, showRepositoryCommit } from 'actions';
+import { fetchPullRequest, showRepositoryCommit, addModal, closeModal } from 'actions';
 import { normalizeFont } from 'utils/helpers';
 
 // import flow types
@@ -24,6 +23,8 @@ type Props = {
     },
     fetchPullRequest: typeof fetchPullRequest,
     showRepositoryCommit: typeof showRepositoryCommit,
+    addModal: typeof addModal,
+    closeModal: typeof closeModal
 }
 
 type ModalState = {
@@ -116,23 +117,34 @@ class RepositoryPullRequestScreen extends PureComponent<Props, ModalState> {
                 <UIText style={styles.body}>{pullRequest.body}</UIText>
                 <ImageButton
                   style={styles.button}
-                  onPress={() => this.setModalVisible(true)}
+                  onPress={() => this.props.addModal(
+                    <ModalPicker
+                        data={[{ type: 'merge' }]}
+                        renderOption={
+                            ({ item }) => {
+                                return (
+                                    <TouchableOpacity
+                                        key={item.type}
+                                        style={styles.modalContent}
+                                        onPress={() => {
+                                            closeModal();
+                                        }}
+                                    >
+                                      <Text style={styles.modalTitle}>Merge this pull request?</Text>
+                                        <Button
+                                          style={styles.deletePr}
+                                          textStyle={styles.deletePrText}
+                                          onPress={() => this.props.closeModal()}>
+                                          Merge
+                                        </Button>
+                                    </TouchableOpacity>
+                                );
+                            }
+                        }
+                    />
+                  )}
                   styleText={styles.buttonText}>
-                  Close PR
                 </ImageButton>
-                <Modal
-                  style={styles.modalContainer}
-                  isVisible={this.state.modalVisible}>
-                  <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Merge this pull request?</Text>
-                    <Button
-                      style={styles.deletePr}
-                      textStyle={styles.deletePrText}
-                      onPress={() => this.setModalVisible(false)}>
-                      Merge
-                    </Button>
-                  </View>
-                </Modal>
                 <ReactionGroup reactions={pullRequest.reactionGroups} />
                 <FlatList
                     style={styles.commentsList}
@@ -275,14 +287,12 @@ const styles = StyleSheet.create({
       fontWeight: '600',
       textAlign: 'center',
     },
-    modalContainer: {
-      backgroundColor: 'transparent',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
     modalContent: {
-      width: 200, height: 80, borderRadius: 10,
-      backgroundColor: '#fff', flexDirection: 'column', alignItems: 'center'
+      flex:1, borderRadius: 10,
+      backgroundColor: '#fff',
+      flexDirection: 'column',
+      alignItems: 'center',
+      marginBottom: 10
     },
     wrapper: {
         flex: 1
@@ -331,5 +341,5 @@ export default connect(
             state: state.repositoryPullRequest
         };
     },
-    { fetchPullRequest, showRepositoryCommit }
+    { fetchPullRequest, showRepositoryCommit, addModal, closeModal }
 )(RepositoryPullRequestScreen);

@@ -2,14 +2,17 @@
 import React, { PureComponent } from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { connect } from 'react-redux';
+import { addModal } from 'actions';
 
 type Props = {
     children: React$Element,
     onPress: () => any,
-    style?: ComponentStyles
+    style?: ComponentStyles,
+    addModal: typeof addModal
 };
 
-export default class ImageButton extends PureComponent<Props> {
+class ImageButton extends PureComponent<Props> {
     render() {
         const { onPress } = this.props;
         const image = 'ellipsis-h';
@@ -22,6 +25,11 @@ export default class ImageButton extends PureComponent<Props> {
         );
     }
 }
+
+export default connect(
+  null,
+  { addModal }
+)(ImageButton);
 
 const styles = StyleSheet.create({
     imageBackground: {
